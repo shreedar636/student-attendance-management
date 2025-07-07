@@ -4,6 +4,7 @@ import com.studentattendance.entity.Attendance;
 import com.studentattendance.entity.Teacher;
 import com.studentattendance.service.AttendanceService;
 import com.studentattendance.service.TeacherService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -14,6 +15,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/teachers")
+@Tag(name = "4. Teacher", description = "Teacher Api")
 public class TeacherController {
     private final TeacherService teacherService;
     private final AttendanceService attendanceService;
