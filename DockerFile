@@ -1,0 +1,18 @@
+# Use official OpenJDK 17 image
+FROM eclipse-temurin:17-jdk-jammy
+
+# Set working directory
+WORKDIR /app
+
+# Copy Gradle wrapper and build files
+COPY gradlew .
+COPY gradle gradle
+COPY build.gradle .
+COPY settings.gradle .
+COPY src src
+
+# Build the application
+RUN ./gradlew clean build
+
+# Run the application
+CMD ["java", "-jar", "build/libs/*.jar", "--spring.profiles.active=prod"]
