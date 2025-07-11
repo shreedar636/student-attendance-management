@@ -4,8 +4,6 @@ import jakarta.validation.constraints.Email;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.Set;
-
 @Getter
 @Setter
 public class RegisterRequest {
@@ -14,5 +12,5 @@ public class RegisterRequest {
     @Email
     private String email;
     private String password;
-    private Set<String> roles;
+
 }
