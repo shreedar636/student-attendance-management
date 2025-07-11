@@ -24,6 +24,12 @@ public class Student {
     private String email;
 
     @Column(nullable = false)
+    private String password;
+
+    @Column(nullable = false)
+    private String studentClass;
+
+    @Column(nullable = false)
     private double attendancePercentage;
 
     @OneToOne

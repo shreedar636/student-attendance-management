@@ -5,15 +5,11 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class AuthResponse {
-    private String token;
+public class StudentResponse {
+    private Integer code;
     private String message;
-
-
-    public AuthResponse(String token, String message) {
-        this.token = token;
+    public StudentResponse(Integer code, String message) {
+        this.code = code;
         this.message = message;
     }
-
-
 }

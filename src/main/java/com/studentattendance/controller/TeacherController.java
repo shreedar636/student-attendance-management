@@ -1,7 +1,12 @@
 package com.studentattendance.controller;
 
+import com.studentattendance.dtos.CreateTeacherRequest;
+import com.studentattendance.dtos.RegisterRequest;
+import com.studentattendance.dtos.RegisterResponse;
+import com.studentattendance.dtos.TeacherResponse;
 import com.studentattendance.entity.Attendance;
 import com.studentattendance.entity.Teacher;
+import com.studentattendance.errorhandler.ServiceResult;
 import com.studentattendance.service.AttendanceService;
 import com.studentattendance.service.TeacherService;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -25,28 +30,36 @@ public class TeacherController {
         this.attendanceService = attendanceService;
     }
 
+    @PostMapping("/add")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<?> teacherRegister(@RequestBody CreateTeacherRequest request) {
+        ServiceResult<TeacherResponse> result = teacherService.createTeacher(request);
+        return ResponseEntity.status(result.getData().getCode()).body(result.getData());
+    }
+
+
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public List<Teacher> getAllTeachers() {
         return teacherService.getAllTeachers();
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<Teacher> getTeacherById(@PathVariable Long id) {
         Optional<Teacher> teacher = teacherService.getTeacherById(id);
         return teacher.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @GetMapping("/me")
-    @PreAuthorize("hasRole('TEACHER')")
+    @PreAuthorize("hasRole('ROLE_TEACHER')")
     public ResponseEntity<Teacher> getCurrentTeacher() {
         Optional<Teacher> teacher = teacherService.getCurrentTeacher();
         return teacher.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PostMapping("/attendance")
-    @PreAuthorize("hasRole('TEACHER')")
+    @PreAuthorize("hasRole('ROLE_TEACHER')")
     public Attendance markAttendance(@RequestParam Long studentId,
                                      @RequestParam LocalDate date,
                                      @RequestParam String status,
@@ -55,8 +68,14 @@ public class TeacherController {
     }
 
     @GetMapping("/attendance")
-    @PreAuthorize("hasRole('TEACHER') or hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ROLE_TEACHER') or hasRole('ROLE_ADMIN')")
     public List<Attendance> getAttendanceByDate(@RequestParam LocalDate date) {
         return attendanceService.getAttendanceByDate(date);
+    }
+    @DeleteMapping("/delete/{id}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<?> deleteStudent(@PathVariable Long id) {
+        ServiceResult<Boolean> result = teacherService.deleteTeacher(id);
+        return ResponseEntity.ok().build();
     }
 }

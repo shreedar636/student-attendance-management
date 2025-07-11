@@ -1,15 +1,11 @@
 package com.studentattendance.controller;
 
-import com.studentattendance.dtos.AuthResponse;
-import com.studentattendance.dtos.LoginRequest;
-import com.studentattendance.dtos.RegisterRequest;
+import com.studentattendance.dtos.*;
+import com.studentattendance.errorhandler.ServiceResult;
 import com.studentattendance.service.AuthService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -22,12 +18,14 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<AuthResponse> register(@RequestBody RegisterRequest request) {
-        return ResponseEntity.ok(authService.register(request));
+    public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
+        ServiceResult<RegisterResponse> result = authService.register(request);
+        return ResponseEntity.status(result.getData().getCode()).body(result.getData());
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request) {
-        return ResponseEntity.ok(authService.login(request));
+    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+        ServiceResult<LoginResponse> result = authService.login(request);
+        return ResponseEntity.status(result.getData().getCode()).body(result.getData());
     }
 }
