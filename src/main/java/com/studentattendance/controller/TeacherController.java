@@ -1,8 +1,6 @@
 package com.studentattendance.controller;
 
 import com.studentattendance.dtos.CreateTeacherRequest;
-import com.studentattendance.dtos.RegisterRequest;
-import com.studentattendance.dtos.RegisterResponse;
 import com.studentattendance.dtos.TeacherResponse;
 import com.studentattendance.entity.Attendance;
 import com.studentattendance.entity.Teacher;

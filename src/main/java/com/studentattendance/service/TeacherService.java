@@ -1,9 +1,7 @@
 package com.studentattendance.service;
 
 import com.studentattendance.dtos.CreateTeacherRequest;
-import com.studentattendance.dtos.StudentResponse;
 import com.studentattendance.dtos.TeacherResponse;
-import com.studentattendance.entity.Student;
 import com.studentattendance.entity.Teacher;
 import com.studentattendance.entity.User;
 import com.studentattendance.errorhandler.ServiceResult;
@@ -14,6 +12,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -22,11 +21,15 @@ import java.util.Set;
 @Service
 public class TeacherService {
     private final TeacherRepository teacherRepository;
-    private PasswordEncoder passwordEncoder;
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public TeacherService(TeacherRepository teacherRepository) {
+    public TeacherService(TeacherRepository teacherRepository,
+                          UserRepository userRepository,
+                          PasswordEncoder passwordEncoder) {
         this.teacherRepository = teacherRepository;
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public List<Teacher> getAllTeachers() {
@@ -42,28 +45,43 @@ public class TeacherService {
         String email = authentication.getName();
         return teacherRepository.findByEmail(email);
     }
+
+    @Transactional
     public ServiceResult<TeacherResponse> createTeacher(CreateTeacherRequest request) {
-        Teacher teacher = new Teacher();
-        User user=new User();
-        if (userRepository.existsByEmail(request.getEmail()) && teacherRepository.existsByEmail(request.getEmail())) {
-            return ServiceResult.error(
-                    new TeacherResponse(400, "Email already exists"),
-                    "EMAIL_EXISTS"
-            );
-        } else {
+        try {
+
+            if (userRepository.existsByEmail(request.getEmail()) ||
+                    teacherRepository.existsByEmail(request.getEmail())) {
+                return ServiceResult.error(
+                        new TeacherResponse(400, "Email already exists"),
+                        "EMAIL_EXISTS"
+                );
+            }
+
+
+            User user = new User();
             user.setFirstName(request.getFirstName());
             user.setLastName(request.getLastName());
             user.setEmail(request.getEmail());
             user.setPassword(passwordEncoder.encode(request.getPassword()));
             user.setRoles(Set.of(Role.TEACHER));
             userRepository.save(user);
+
+
+            Teacher teacher = new Teacher();
             teacher.setFirstName(request.getFirstName());
             teacher.setLastName(request.getLastName());
             teacher.setEmail(request.getEmail());
             teacher.setPassword(passwordEncoder.encode(request.getPassword()));
-             teacherRepository.save(teacher);
+            teacherRepository.save(teacher);
+
             return ServiceResult.success(
                     new TeacherResponse(200, "Teacher added successfully")
+            );
+        } catch (Exception e) {
+            return ServiceResult.error(
+                    new TeacherResponse(500, "Failed to create teacher: " + e.getMessage()),
+                    "TEACHER_CREATION_FAILED"
             );
         }
     }
@@ -71,4 +89,5 @@ public class TeacherService {
         teacherRepository.deleteById(id);
         return ServiceResult.success(true);
     }
+
 }
